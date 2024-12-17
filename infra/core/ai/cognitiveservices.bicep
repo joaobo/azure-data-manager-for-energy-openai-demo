@@ -25,14 +25,36 @@ resource account 'Microsoft.CognitiveServices/accounts@2022-10-01' = {
   sku: sku
 }
 
-@batchSize(1)
-resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2022-10-01' = [for deployment in deployments: {
+// @batchSize(1)
+// resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2024-06-01-preview' = [for deployment in deployments: {
+//   parent: account
+//   name: deployment.name
+//   properties: {
+//     model: deployment.model
+//     raiPolicyName: contains(deployment, 'raiPolicyName') ? deployment.raiPolicyName : null
+//     scaleSettings: deployment.scaleSettings
+//   }
+// }]
+
+
+resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2024-06-01-preview' = [for deployment in deployments: {
   parent: account
   name: deployment.name
+  sku: {
+    name: 'Standard'
+    capacity: 20
+  }
   properties: {
-    model: deployment.model
-    raiPolicyName: contains(deployment, 'raiPolicyName') ? deployment.raiPolicyName : null
-    scaleSettings: deployment.scaleSettings
+    model: {
+      format: 'OpenAI'
+      name: deployment.model.name
+      version: deployment.model.version
+    }
+    
+  raiPolicyName: contains(deployment, 'raiPolicyName') ? deployment.raiPolicyName : null
+  // model: deployment.model
+   // raiPolicyName: contains(deployment, 'raiPolicyName') ? deployment.raiPolicyName : null
+  // scaleSettings: deployment.scaleSettings
   }
 }]
 
