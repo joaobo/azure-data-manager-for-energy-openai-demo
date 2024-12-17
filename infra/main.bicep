@@ -13,9 +13,11 @@ param appServicePlanName string = ''
 param backendServiceName string = ''
 param resourceGroupName string = ''
 
+param appServicePlanLocation string = 'uksouth'
+
 param searchServiceName string = ''
 param searchServiceResourceGroupName string = ''
-param searchServiceResourceGroupLocation string = location
+param searchServiceResourceGroupLocation string =  'uksouth'
 
 param searchServiceSkuName string = 'standard'
 param searchIndexName string = 'gptkbindex'
@@ -33,20 +35,20 @@ param databricksResourceGroupLocation string = location
 
 param openAiServiceName string = ''
 param openAiResourceGroupName string = ''
-param openAiResourceGroupLocation string = location
+// param openAiResourceGroupLocation string = location
+param openAiResourceGroupLocation string = 'swedencentral'
 
 param openAiSkuName string = 'S0'
 
 // param formRecognizerServiceName string = ''
 // param formRecognizerResourceGroupName string = ''
 // param formRecognizerResourceGroupLocation string = location
-
 // param formRecognizerSkuName string = 'S0'
 
-param gptDeploymentName string = 'davinci'
-param gptModelName string = 'text-davinci-003'
+param gptDeploymentName string = 'gpt-4o-gpt'
+param gptModelName string = 'gpt-4o'
 param chatGptDeploymentName string = 'gpt-las'
-param chatGptModelName string = 'gpt-35-turbo'
+param chatGptModelName string = 'gpt-4o'
 
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
@@ -92,7 +94,7 @@ module appServicePlan 'core/host/appserviceplan.bicep' = {
   scope: resourceGroup
   params: {
     name: !empty(appServicePlanName) ? appServicePlanName : '${abbrs.webServerFarms}${resourceToken}'
-    location: location
+    location: appServicePlanLocation
     tags: tags
     sku: {
       name: 'B1'
@@ -108,7 +110,7 @@ module backend 'core/host/appservice.bicep' = {
   scope: resourceGroup
   params: {
     name: !empty(backendServiceName) ? backendServiceName : '${abbrs.webSitesAppService}backend-${resourceToken}'
-    location: location
+    location: appServicePlanLocation
     tags: union(tags, { 'azd-service-name': 'backend' })
     appServicePlanId: appServicePlan.outputs.id
     runtimeName: 'python'
@@ -143,7 +145,7 @@ module openAi 'core/ai/cognitiveservices.bicep' = {
         model: {
           format: 'OpenAI'
           name: gptModelName
-          version: '1'
+          version: '2024-08-06'
         }
         scaleSettings: {
           scaleType: 'Standard'
@@ -154,7 +156,7 @@ module openAi 'core/ai/cognitiveservices.bicep' = {
         model: {
           format: 'OpenAI'
           name: chatGptModelName
-          version: '0301'
+          version: '2024-08-06'
         }
         scaleSettings: {
           scaleType: 'Standard'
